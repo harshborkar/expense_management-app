@@ -22,7 +22,7 @@ Our project focuses on building a system that helps users efficiently track, man
 ---
 
 ## Video Link
-[Watch the Demo](#)  
+[Watch the Demo](https://youtu.be/zdRTCxwSWHA?si=qMoxaKqO_D9aU80P)  
 
 
 
@@ -46,4 +46,4 @@ Finetic Frenzy aims to provide users with a simple yet effective platform to:
 ## How to Run
 1. Clone the repository:  
    ```bash
-   git clone <>
+   git clone <https://github.com/harshborkar/expense_management-app.git>
