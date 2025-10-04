@@ -1,0 +1,57 @@
+// prisma/schema.prisma
+
+// Connection to your Supabase DB
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Generate Prisma Client (JS/TS)
+generator client {
+  provider = "prisma-client-js"
+}
+
+// --- Your Application Models ---
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  role      Role      @default(EMPLOYEE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  manager   User?     @relation("ManagerToEmployee", fields: [managerId], references: [id])
+  managerId String?
+  reports   User[]    @relation("ManagerToEmployee")
+  expenses  Expense[]
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  amount      Float
+  currency    String
+  category    String
+  description String
+  date        DateTime
+  status      Status   @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  owner       User     @relation(fields: [ownerId], references: [id])
+  ownerId     String
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
