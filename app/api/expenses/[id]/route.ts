@@ -4,13 +4,18 @@ import { NextResponse } from "next/server";
 import db from "@/lib/db";
 
 export async function PATCH(
-  request: Request,
-  // The fix is to take the whole context object here...
-  context: { params: { id: string } }
+  request: Request
+  // We have removed the second 'context' argument to avoid the error
 ) {
   try {
-    // ...and then get the id from context.params
-    const { id } = context.params;
+    // New Method: Get the ID directly from the request URL
+    const url = new URL(request.url);
+    const id = url.pathname.split("/").pop(); // Gets the last part of the URL path, which is the ID
+
+    if (!id) {
+      return new NextResponse("Expense ID not found in URL", { status: 400 });
+    }
+
     const { status } = await request.json();
 
     if (!status || !["APPROVED", "REJECTED"].includes(status)) {
@@ -18,7 +23,7 @@ export async function PATCH(
     }
 
     const updatedExpense = await db.expense.update({
-      where: { id },
+      where: { id: id }, // Use the ID we extracted from the URL
       data: { status },
     });
 
