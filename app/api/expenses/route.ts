@@ -9,11 +9,19 @@ import { cookies } from "next/headers";
 async function getSupabaseUser() {
   // The fix is to 'await' the cookies() function call
   const cookieStore = await cookies();
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (name) => cookieStore.get(name)?.value } }
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
   );
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -43,7 +51,7 @@ export async function POST(request: Request) {
         category,
         description,
         date: new Date(date),
-        ownerId: user.id, // Use the REAL user ID from the session
+        ownerId: user.id,
       },
     });
 
@@ -54,16 +62,17 @@ export async function POST(request: Request) {
   }
 }
 
-// Function to GET expenses
+// Function to GET expenses for the logged-in user
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId"); // Check for a userId in the URL
+    const user = await getSupabaseUser();
+
+    if (!user) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
     const expenses = await db.expense.findMany({
-      // If a userId is provided, filter expenses for that user.
-      // Otherwise, return all expenses (for admin/manager views).
-      where: userId ? { ownerId: userId } : {},
+      where: { ownerId: user.id }, // Securely filter by the logged-in user's ID
       include: {
         owner: {
           select: { name: true },
