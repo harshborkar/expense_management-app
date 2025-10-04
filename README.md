@@ -46,4 +46,4 @@ Finetic Frenzy aims to provide users with a simple yet effective platform to:
 ## How to Run
 1. Clone the repository:  
    ```bash
-   git clone <your-repo-link>
+   git clone <>
